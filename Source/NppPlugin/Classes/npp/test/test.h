@@ -31,6 +31,16 @@ namespace npp {
         return; \
       }
 
+    /// Assert a floating point value is close to a value, because floats
+    /// don't have exact matching values.
+    #define ASSERT_NEAR(value, target, interval) \
+      if (!((value >= (target - interval)) && (value <= (target + interval)))) { \
+        TRACE("%f is not withing bounded range %f of target %f", value, interval, target); \
+        TRACE("%s:%d ", __FILE__, __LINE__); \
+        success = false; \
+        return; \
+      }
+
     /// Unreachable code, for tests
     #define UNREACHABLE ASSERT(false)
   }

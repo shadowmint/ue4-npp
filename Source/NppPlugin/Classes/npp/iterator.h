@@ -38,11 +38,23 @@ namespace npp {
         return rtn;
       }
 
-      /// Handle each value
+      /// Callback on elements until false is returned.
       void Iter(std::function< bool(TOut value)> each) {
         if (src != nullptr) {
           iter(src, each);
         }
+      }
+
+      /// Return an iterator using the matcher
+      Iterator<std::function< bool(TOut value)>, TOut> Find(std::function< bool(TOut value)> matcher) {
+        return Iterator<std::function<bool(TOut)>, TOut>::From(matcher, [&] (std::function<bool(TOut)> test, std::function<bool(TOut value)> handler) {
+          this->Iter([&] (TOut value) -> bool {
+            if (test(value)) {
+              return handler(value);
+            }
+            return true;
+          });
+        });
       }
 
       /// Handle each value
@@ -73,11 +85,16 @@ namespace npp {
         return count;
       }
 
-      /// Return the first matching item, or None
+      /// Return true if any matching items
       bool Any() {
         bool rtn = false;
         First().Then([&] (TOut out) { rtn = true; });
         return rtn;
+      }
+
+      /// Return true if any matching items
+      bool Any(std::function< bool(TOut value) > matcher) {
+        return Find(matcher).Any();
       }
 
       /// Return a list of all the values in the array
